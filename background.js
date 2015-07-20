@@ -1,5 +1,7 @@
 var urlServer = "http://160.40.50.183:8080/CLOUD4All_SST_Restful_WS/SST/call_";
 var data = {"urlToTranslate": "", "targetLanguage": "fr"};
+var tabs = [];
+var serviceName = "";
 var currentURL = "";
 var currentTabId = 0;
 var urlResponse = "";
@@ -8,33 +10,168 @@ var loading = false;
 var uri = 'com.certh.service-synthesis';
 var socketServer = 'http://localhost:8081/browserChannel';
 var socket;
+var reload = false;
 
 console.log("Starting extension...");
 
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-	if(!tab.url.includes("SSTChrome") && !tab.url.includes("chrome-devtools") && !tab.url.includes("chrome://") && (currentURL != tab.url || currentTabId != tab.id))
+	if(!tab.url.includes("SSTChrome") && !tab.url.includes("SST/ServicesData"))
 	{
-		console.log('La URL a traducir es: ' + tab.url + " - " + tab.id + " - " + tabId);
-		currentURL = tab.url;
-		currentTabId = tab.id;
-		chrome.tabs.get(tabId, function(tab) 
+		if(serviceName != "" && !tab.url.includes("chrome-devtools") && !tab.url.includes("chrome://") && (currentURL != tab.url || currentTabId != tab.id))
 		{
-			if (typeof tab != 'undefined') 
+			console.log('La URL a traducir es: ' + tab.url + " - " + tab.id + " - " + tabId);
+			currentURL = tab.url;
+			currentTabId = tab.id;
+			/*chrome.tabs.get(tabId, function(tab) 
 			{
-				console.log('Tab exist! 1');
-				chrome.tabs.update(tabId, {"url": "SSTChrome.html"});
-				//callSST(tab.url, tab.id);
+				if (typeof tab != 'undefined') 
+				{
+					console.log('Tab exist! 1');
+					chrome.tabs.update(tabId, {"url": "SSTChrome.html"});
+					callSST(tab.url, tab.id);
+				}
+				else
+				{
+					console.log('Tab does not exist! 1');
+					removeTab(tabId);
+				}
+			});*/
+			loadAdaptedPage(tab.id, tab.url);
+		}
+		
+		if(!reload)
+		{
+			var tabInfo = {};
+			if(!tab.url.includes("chrome-devtools") && !tab.url.includes("chrome://"))
+			{
+				tabInfo = {"id": tab.id, "url": tab.url};
 			}
 			else
 			{
-				console.log('Tab does not exist! 1');
+				tabInfo = {"id": tab.id, "url": ""};
 			}
-		});
-		
-	}
+			updateTab(tabInfo);
+			showTabs();
+		}
+	}	
 });
 
+chrome.tabs.onRemoved.addListener(function(tabId){
+	removeTab(tabId);
+	showTabs();
+});
+
+function loadAdaptedPage(tabId, url)
+{
+	chrome.tabs.get(tabId, function(tab) 
+	{
+		if (typeof tab != 'undefined') 
+		{
+			console.log('Tab exist! 1');
+			if(url != "")
+			{
+				chrome.tabs.update(tabId, {"url": "SSTChrome.html"});
+				callSST(url, tabId);
+			}
+		}
+		else
+		{
+			console.log('Tab does not exist! 1');
+			removeTab(tabId);
+		}
+	});
+}
+
+function loadOriginalPage(tabId, url)
+{
+	chrome.tabs.get(tabId, function(tab) 
+	{
+		if (typeof tab != 'undefined') 
+		{
+			var updateValues = {};
+			reload = true;
+			for(i = 0; i < tabs.length; i++)
+			{
+				if(url != "")
+				{
+					updateValues.url = url;
+					chrome.tabs.update(tabId, updateValues);
+				}
+			}
+			reload = false;
+		}
+		else
+		{
+			console.log('Tab does not exist! 1');
+			removeTab(tabId);
+		}
+	});
+}
+
+function reloadAllTabs()
+{
+	if(serviceName != "")
+	{
+		for(i = 0; i < tabs.length; i++)
+		{
+			loadAdaptedPage(tabs[i].id, tabs[i].url);
+		}
+	}
+	else
+	{
+		for(i = 0; i < tabs.length; i++)
+		{
+			loadOriginalPage(tabs[i].id, tabs[i].url);
+		}
+	}
+}
+
+// ----- Tabs manager -----
+
+function updateTab(tab)
+{
+	var exist = false;
+	var index = tabs.length;
+	var i = 0;
+	while(!exist && i < index)
+	{
+		if(tabs[i].id == tab.id)
+		{
+			tabs[i].url = tab.url;
+			exist = true;
+		}
+		i++;
+	}
+	
+	if(!exist)
+	{
+		tabs.push(tab);
+	}
+}
+
+function removeTab(tabId)
+{
+	for(i = 0; i < tabs.length; i++)
+	{
+		if(tabs[i].id == tabId)
+		{
+			tabs.splice(i, 1);
+		}
+	}
+}
+
+function showTabs()
+{
+	for(i = 0; i < tabs.length; i++)
+	{
+		console.log("tab " + i + ": " + JSON.stringify(tabs[i]));
+	}
+}
+
+// ----- End Tabs manager -----
+
+// ---- SST Communication ----
  function callSST(urlRequest, tabId)
  {
 	console.log(" --- start SST call --- ");
@@ -50,7 +187,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	   type: "POST",
 	   encoding:"UTF-8",
 	   contentType: "application/json; charset=UTF-8",
-	   url: urlServer + 'Translatewebpage',     
+	   url: urlServer + serviceName,     
 	   data: dataRequest,
 	   success: function(data) {
 		    urlResponse = unescape(data.urlOfTranslatedPage);
@@ -81,7 +218,9 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	console.log(" --- end SST call --- ");
  }
  
- //Communication socket io
+ // ---- End SST Communication ----
+ 
+ // ---- Communication socket io -----
  
  
 console.log("windows.onCreated....");
@@ -91,7 +230,7 @@ if(socket == null || !socket.socket.connected)
 	console.log("### Connecting");
 	socket = io.connect(socketServer);
 	
-	socketListeners();
+	//socketListeners();
 }
 
 if(socket != null && socket.socket.connected)
@@ -103,8 +242,8 @@ if(socket != null && socket.socket.connected)
 }
 
 
-function socketListeners()
-{
+/*function socketListeners()
+{*/
 	socket.on('connect', function(data){
 		console.log('Socket connected: ');
 		console.log("### Sending uri: " + uri);
@@ -116,7 +255,32 @@ function socketListeners()
 	});
 
 	socket.on("onBrowserSettingsChanged", function(settings){
-		console.log("## Got newSettings: " + JSON.stringify(settings));
+		console.log("## Got newSettings: " + JSON.stringify(settings)); //{"targetLanguage":"fr","service":"Translatewebpage"}
+		parseSettings(settings);
+		reloadAllTabs();
 	});
 	
+//}
+
+function parseSettings(settings)
+{
+	if(settings != null)
+	{
+		serviceName = settings.service;
+		/*switch(serviceName)
+		{
+			case "Translatewebpage": 
+				data = {"urlToTranslate": "", "targetLanguage": settings.targetLanguage};
+				break;
+		}*/
+		data = settings.data;
+		console.log("Info parsed: " + serviceName + " - " + JSON.stringify(data));
+	}
+	else
+	{
+		serviceName = "";
+		data = {};
+	}
 }
+
+ // ---- End Communication socket io -----
