@@ -11,12 +11,11 @@ Installation
 To install the chrome extension, make the following steps.
 
   * Download the zip file from https://github.com/GutiX/SSTChrome4cloud/archive/master.zip 
-  * Extract the zip file in a folder of your choice
+  * Extract the zip file in a folder of your choice.
   * In the Chrome browser, click on the ‘settings’ icon in the upper right corner.
-  * Once in the ‘settings’ page, go to ‘extensions’ in the left sidebar menu
-  * Make sure the ‘Developer mode’ checkbox is checked
-  * Then, click on ‘Load unpacked extension...’
-	** Select the folder where you unzipped the files you downloaded in step 2
+  * Once in the ‘settings’ page, go to ‘extensions’ in the left sidebar menu.
+  * Make sure the ‘Developer mode’ checkbox is checked.
+  * Then, click on ‘Load unpacked extension...’ and select the folder where you unzipped the files you downloaded in step 2.
 
 License
 =======
