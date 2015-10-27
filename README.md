@@ -1,27 +1,21 @@
-cloud4chrome
+SSTChrome4cloud (Synthesis service)
 ============
 
-Google Chrome extension that integrates some of the browser's accessibility features with the [Global Public Inclusive Infrastructure (GPII)](http://gpii.net/). 
-The extension gets the needs and preferences of a user from the Cloud and adapts the accessibility capabilities of Google Chrome.
-
-In this version, the user will be able to choose:
-
-- Whether to activate or deactivate [ChromeVox](http://www.chromevox.com/) 
-- High contrast (invert filter)
-- Zoom level (between 100 % and 300%)
-- Font size (medium - large - x-large)
-- Line height
-- Font face
-- Simplification (beta - for now, it just picks all text elements from the DOM and lists them one after another).
-
-The settings of the user are now stored using Chrome's sync storage. In the future, the preferences will be downloaded from the preferences server of Cloud4all.
+The Chrome extension for Google Chrome is a component installable in the web browser. This extension establishes a connection with GPII to get the active preferences. These preferences contain configuration parameters used, by the extension, to request to the synthesis service the adaptation of a web page. The extension sends the configuration parameters and the website URL to synthesis service. The synthesis service creates a new version of the web page using the URL and the configuration parameters received. Synthesis service returns to the chrome extension a new URL with the new version of the web page.
+The Chrome extension can work autonomously, with cloud-based flowManager, or by local flowManager.
 
 Installation
 ============
 
-Download the [source code](https://github.com/GutiX/chrome4cloud/archive/master.zip) to a folder on your computer. 
+To install the chrome extension, make the following steps.
 
-In Google Chrome, click the 'Customise and control Google Chrome' icon in the upper right side of the screen, then click 'Settings'. In the left menu, click on 'Extensions'. Make sure that the 'developer mode' checkbox is on, and then click on 'Load unpacked extensions'. In the dialog box, select the folder where you downloaded cloud4chrome.
+  * Download the zip file from https://github.com/GutiX/SSTChrome4cloud/archive/master.zip 
+  * Extract the zip file in a folder of your choice
+  * In the Chrome browser, click on the ‘settings’ icon in the upper right corner.
+  * Once in the ‘settings’ page, go to ‘extensions’ in the left sidebar menu
+  * Make sure the ‘Developer mode’ checkbox is checked
+  * Then, click on ‘Load unpacked extension...’
+  ** Select the folder where you unzipped the files you downloaded in step 2
 
 License
 =======
