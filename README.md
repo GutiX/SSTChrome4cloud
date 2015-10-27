@@ -2,6 +2,7 @@ SSTChrome4cloud (Synthesis service)
 ============
 
 The Chrome extension for Google Chrome is a component installable in the web browser. This extension establishes a connection with GPII to get the active preferences. These preferences contain configuration parameters used, by the extension, to request to the synthesis service the adaptation of a web page. The extension sends the configuration parameters and the website URL to synthesis service. The synthesis service creates a new version of the web page using the URL and the configuration parameters received. Synthesis service returns to the chrome extension a new URL with the new version of the web page.
+
 The Chrome extension can work autonomously, with cloud-based flowManager, or by local flowManager.
 
 Installation
@@ -15,7 +16,7 @@ To install the chrome extension, make the following steps.
   * Once in the ‘settings’ page, go to ‘extensions’ in the left sidebar menu
   * Make sure the ‘Developer mode’ checkbox is checked
   * Then, click on ‘Load unpacked extension...’
-  ** Select the folder where you unzipped the files you downloaded in step 2
+	** Select the folder where you unzipped the files you downloaded in step 2
 
 License
 =======
