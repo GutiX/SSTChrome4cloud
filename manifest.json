@@ -18,7 +18,8 @@
             ],
             "js": [
                 "lib/jquery-1.9.1.min.js",
-				"lib/socket.io.js"
+				"lib/socket.io.js",
+				"lib/sstWeb.js"
             ],
             "run_at": "document_start"
         }

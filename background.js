@@ -13,12 +13,25 @@ var socketServer = 'http://localhost:8081/browserChannel';
 var socket;
 var connect = false;
 var reload = false;
+var oldAdapted = [];
 
 console.log("Starting extension...");
 
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	console.log("Reloading page... Service name: " + serviceName);
+	
+	/*if(tab.url.includes("SST/ServicesData"))
+	{				
+		console.log("#### Entra en else if");
+		var old = oldAdapted[tabId];
+		if(old == null && old == "" && old.url == tab.url)
+		{
+			console.log("Web sst loading");
+			message(tabId);
+		}			
+	}*/
+	
 	if(!tab.url.includes("SSTChrome") && !tab.url.includes("SST/ServicesData") && !tab.url.includes("webanywhere"))
 	{
 		if(serviceName != "" && !tab.url.includes("chrome-devtools") && !tab.url.includes("chrome://") && (currentURL != tab.url || currentTabId != tab.id))
@@ -27,9 +40,18 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 			currentURL = tab.url;
 			currentTabId = tab.id;
 			
+			/*var old = oldAdapted[tabId];
+			if(old == null || old == "")
+			{			
+				console.log("Web normal primera");
+				message(tabId);
+			}*/
+			
+			chrome.tabs.sendMessage(tabId, { action : "load page", status : true }, function(response) {});
+			
 			loadAdaptedPage(tab.id, tab.url);
 		}
-		
+				
 		if(!reload)
 		{
 			var tabInfo = {};
@@ -45,6 +67,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 			showTabs();
 		}
 	}	
+	
 });
 
 chrome.tabs.onRemoved.addListener(function(tabId){
@@ -61,7 +84,14 @@ function loadAdaptedPage(tabId, url)
 			console.log('Tab exist! 1');
 			if(url != "")
 			{
-				chrome.tabs.update(tabId, {"url": "SSTChrome.html"});
+				/*var old = oldAdapted[tabId];
+				if(old != null && old != "")
+				{	
+					chrome.tabs.update(tabId, old);
+				}*/
+				
+				//chrome.tabs.sendMessage(tabId, { action : "load page", status : true }, function(response) {});
+				//chrome.tabs.update(tabId, {"url": "SSTChrome.html"});
 				callSST(url, tabId);
 			}
 		}
@@ -202,6 +232,7 @@ function showTabs()
 				if (typeof tab != 'undefined') 
 				{
 					console.log('Tab exist!');
+					oldAdapted[tabId] = updateValues;
 					chrome.tabs.update(tabId, updateValues);
 				}
 				else
@@ -212,7 +243,8 @@ function showTabs()
 			
 		},
 		error: function(resp) {
-			console.log("error ", resp.error);
+			console.log("error: ", resp.error);
+			chrome.tabs.sendMessage(tabId, { action : "error load page", status : true }, function(response) {});
 			return "";
 		},
 	});
